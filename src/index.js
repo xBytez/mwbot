@@ -348,7 +348,7 @@ class MWBot {
             }
 
             // MW >= 1.24
-            this.request({
+            /*this.request({
                 action: 'query',
                 meta: 'tokens',
                 type: 'csrf'
@@ -356,6 +356,29 @@ class MWBot {
                 if (response.query && response.query.tokens && response.query.tokens.csrftoken) {
                     this.editToken = response.query.tokens.csrftoken;
                     this.state = MWBot.merge(this.state, response.query.tokens);
+                    return resolve(this.state);
+                } else {
+                    let err = new Error('Could not get edit token');
+                    err.response = response;
+                    return reject(err) ;
+                }
+            }).catch((err) => {
+                return reject(err);
+            });*/
+
+            // MW >= 1.20
+            this.request({
+                action: 'tokens',
+                type: 'edit'
+                //type: 'edit|delete|block|unblock'
+            }).then((response) => {
+                if (response.tokens && response.tokens && response.tokens.edittoken) {
+                    this.editToken = response.tokens.edittoken;
+                    /* this.deleteToken = response.tokens.deletetoken;
+                    this.blockToken = response.tokens.blocktoken;
+                    this.unblockToken = response.tokens.unblocktoken; */
+
+                    this.state = MWBot.merge(this.state, response.tokens);
                     return resolve(this.state);
                 } else {
                     let err = new Error('Could not get edit token');
